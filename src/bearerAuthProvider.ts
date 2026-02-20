@@ -43,7 +43,11 @@ export class BearerAuthProvider {
     env: any,
     ctx: ExecutionContext
   ): Response | Promise<Response> {
-    const url = new URL(request.url);
+    // Bypass authentication for OPTIONS requests (CORS preflight)
+    // to allow the handler's CORS logic to respond instead of failing with 401
+    if (request.method === "OPTIONS") {
+      return this.invokeHandler(this.options.apiHandler, request, env, ctx);
+    }
 
     return this.handleApiRequest(request, env, ctx);
   }
